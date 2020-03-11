@@ -114,11 +114,23 @@ public class EventControllerTests {
                 .location("NPEE")
                 .build();
 
+        /*
         this.mockMvc.perform(post("/api/events/")
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
                     .accept(MediaTypes.HAL_JSON_UTF8)
                     .content(this.objectMapper.writeValueAsString(eventDTO)))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
+        */
+        this.mockMvc.perform(post("/api/events/")
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .content(this.objectMapper.writeValueAsString(eventDTO)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].objectName").exists())
+                .andExpect(jsonPath("$[0].field").exists())
+                .andExpect(jsonPath("$[0].defaultMessage").exists())
+                .andExpect(jsonPath("$[0].rejectedValue").exists())
+                .andDo(print());
+
     }
 }
