@@ -33,12 +33,14 @@ public class EventController {
     public ResponseEntity createEvent(@RequestBody @Valid EventDTO eventDTO, Errors errors) {
 
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().build();
+            // return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(errors); // Runtime Error - Need serializers
         }
 
         eventValidator.validate(eventDTO, errors);
         if (errors.hasErrors()) {
-            return  ResponseEntity.badRequest().build();
+            // return  ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(errors); // Runtime Error - Need serializers
         }
 
         Event event = modelMapper.map(eventDTO, Event.class);
