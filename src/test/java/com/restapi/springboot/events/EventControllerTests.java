@@ -1,6 +1,7 @@
 package com.restapi.springboot.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.restapi.springboot.common.TestDescription;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,4 +84,41 @@ public class EventControllerTests {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    @TestDescription("입력값이 비어있을 때")
+    public void createEvent_Bad_Request_Empty_Input() throws Exception {
+        EventDTO eventDTO = EventDTO.builder().build();
+
+        this.mockMvc.perform(post("/api/events")
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .accept(MediaTypes.HAL_JSON_UTF8)
+                    .content(this.objectMapper.writeValueAsString(eventDTO)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @TestDescription("입력값이 잘못되었을 때")
+    public void createEvent_Bad_Request_Wrong_Input() throws Exception {
+
+        EventDTO eventDTO = EventDTO.builder()
+                .name("Spring")
+                .description("REST API Development")
+                .beginEnrollmentDateTime(LocalDateTime.of(2020,3,1,12,0))
+                .closeEnrollmentDateTime(LocalDateTime.of(2020,1,1,12,0))
+                .beginEventDateTime(LocalDateTime.of(2020,3,12,12,0))
+                .endEventDateTime(LocalDateTime.of(2020,3,11,12,0))
+                .basePrice(1100)
+                .maxPrice(200)
+                .limitOfEnrollment(100)
+                .location("NPEE")
+                .build();
+
+        this.mockMvc.perform(post("/api/events/")
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .accept(MediaTypes.HAL_JSON_UTF8)
+                    .content(this.objectMapper.writeValueAsString(eventDTO)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
 }
