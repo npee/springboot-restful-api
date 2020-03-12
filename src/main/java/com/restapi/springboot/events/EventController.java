@@ -3,6 +3,7 @@ package com.restapi.springboot.events;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
@@ -48,7 +49,16 @@ public class EventController {
         event.update();
 
         Event newEvent = this.eventRepository.save(event);
-        URI createdURI = linkTo(EventController.class).slash(newEvent.getId()).toUri();
-        return ResponseEntity.created(createdURI).body(newEvent);
+
+
+        // URI createdURI = linkTo(EventController.class).slash(newEvent.getId()).toUri();
+        ControllerLinkBuilder selfLinkBuilder = linkTo(EventController.class).slash(newEvent.getId());
+        URI createdURI = selfLinkBuilder.toUri();
+        EventResource eventResource = new EventResource(newEvent);
+        eventResource.add(linkTo(EventController.class).withRel("query-events"));
+        eventResource.add(linkTo(EventController.class).withRel("update-events"));
+
+        // return ResponseEntity.created(createdURI).body(newEvent);
+        return ResponseEntity.created(createdURI).body(eventResource);
     }
 }
