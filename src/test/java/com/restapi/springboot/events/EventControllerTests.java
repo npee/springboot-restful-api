@@ -32,29 +32,40 @@ public class EventControllerTests {
     ObjectMapper objectMapper;
 
     @Test
+    @TestDescription("정상적으로 이벤트 입력")
     public void createEvent() throws Exception {
-        Event event = Event.builder()
+        // 직렬화
+        // Event event = Event.builder()
+        EventDTO eventDTO = EventDTO.builder()
                 .name("Spring")
                 .description("REST API Development")
-                .beginEnrollmentDateTime(LocalDateTime.of(2010, 11, 23, 14, 23))
-                .closeEnrollmentDateTime(LocalDateTime.of(2018, 11, 30, 14, 23))
-                .beginEventDateTime(LocalDateTime.of(2018, 12, 5, 14, 30))
-                .endEventDateTime(LocalDateTime.of(2018, 12, 6, 14, 30))
+                .beginEnrollmentDateTime(LocalDateTime.of(2018, 11, 30, 0, 0))
+                .closeEnrollmentDateTime(LocalDateTime.of(2019, 11, 30, 0, 0))
+                .beginEventDateTime(LocalDateTime.of(2019, 12, 19, 11, 30))
+                .endEventDateTime(LocalDateTime.of(2019, 12, 20, 11, 30))
                 .basePrice(100)
                 .maxPrice(200)
                 .limitOfEnrollment(100)
-                .location("D Start up Factory")
+                .location("Npee Corp.")
                 .build();
 
         mockMvc.perform(post("/api/events/")
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .accept(MediaTypes.HAL_JSON_UTF8)
-                .content(objectMapper.writeValueAsString(event)))
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .accept(MediaTypes.HAL_JSON_UTF8)
+                    // 직렬화된 DTO 사용
+                    .content(objectMapper.writeValueAsString(eventDTO)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").exists())
                 .andExpect(header().exists(HttpHeaders.LOCATION))
-                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_UTF8_VALUE));
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_UTF8_VALUE))
+                // hateoas
+                .andExpect(jsonPath("free").value(false))
+                .andExpect(jsonPath("offline").value(true))
+                .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.query-events").exists())
+                .andExpect(jsonPath("_links.update-events").exists());
     }
 
     @Test
